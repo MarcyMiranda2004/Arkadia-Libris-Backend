@@ -22,13 +22,11 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     public String login(LoginDto loginDto) throws NotFoundException {
-        User user = userRepository.findByUsername(loginDto.getUsername())
-                .orElseThrow(() -> new NotFoundException("Utente con questo username/password non trovato"));
-
-        if (passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
-            return jwtTool.createToken(user);
-        } else {
-            throw new NotFoundException("Utente con questo username/password non trovato");
+        User user = userRepository.findByEmail(loginDto.getEmail())
+                .orElseThrow(() -> new NotFoundException("Utente con questa email/password non trovato"));
+        if (!passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+            throw new NotFoundException("Utente con questa email/password non trovato");
         }
+        return jwtTool.createToken(user);
     }
 }

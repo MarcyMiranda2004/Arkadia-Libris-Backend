@@ -1,14 +1,17 @@
 package com.example.capstone.arkadia.libris.model;
 
-import com.example.capstone.arkadia.libris.enumerated.Ruolo;
+import com.example.capstone.arkadia.libris.enumerated.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collection;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 @Entity
 @Data
@@ -16,21 +19,47 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer  id;
-    private String nome;
-    private String cognome;
+    private Long id;
+
+    @NotBlank
+    private String name;
+
+    @NotBlank
+    private String surname;
+
+    private LocalDate bornDate;
+
+    @NotBlank
+    @Column(unique = true)
     private String username;
 
+    private String avatarUrl;
+    private String phoneNumber;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Address> addresses = new ArrayList<>();
+
+    @Email
+    @NotBlank
     @Column(unique = true)
     private String email;
+
+    @JsonIgnore
+    @NotBlank
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Ruolo ruolo;
+    private Role role;
+
+    @Override
+    public String getUsername() {return username;}
+
+    @Override
+    public String getPassword() {return password;}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(ruolo.name()));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

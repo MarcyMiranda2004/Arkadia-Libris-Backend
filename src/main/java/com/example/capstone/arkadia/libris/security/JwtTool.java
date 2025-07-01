@@ -17,7 +17,7 @@ public class JwtTool {
     private long durata;
 
     @Value("${jwt.secret}")
-    private String chiaveSegreta;
+    private String secretKey;
 
     @Autowired
     private UserService userService;
@@ -27,25 +27,25 @@ public class JwtTool {
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + durata))
                 .subject(String.valueOf(user.getId()))
-                .claim("role", user.getRuolo())
-                .signWith(Keys.hmacShaKeyFor(chiaveSegreta.getBytes()))
+                .claim("role", user.getRole())
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .compact();
     }
 
     public void validateToken(String token) {
-        Jwts.parser().verifyWith(Keys.hmacShaKeyFor(chiaveSegreta.getBytes())).build().parse(token);
+        Jwts.parser().verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes())).build().parse(token);
     }
 
     public User getUserFromToken(String token) throws NotFoundException {
         int id = Integer.parseInt(Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor(chiaveSegreta.getBytes()))
+                .verifyWith(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .build().parseSignedClaims(token).getPayload().getSubject());
 
-        return userService.getUser(id);
+        return userService.getUser((long) id);
     }
 
-    public String getChiaveSegreta() {
-        return chiaveSegreta;
+    public String getSecretKey() {
+        return secretKey;
     }
 }
 

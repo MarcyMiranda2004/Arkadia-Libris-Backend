@@ -1,18 +1,39 @@
 package com.example.capstone.arkadia.libris.dto;
 
-import jakarta.validation.constraints.NotEmpty;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
 
 @Data
 public class UserDto {
-    @NotEmpty(message = "il nome non può essere vuoto")
-    private String nome;
-    @NotEmpty(message = "il cognome non può essere vuoto")
-    private String cognome;
-    @NotEmpty(message = "lo username non può essere vuoto")
+    @NotBlank(message = "il nome non può essere vuoto")
+    private String name;
+
+    @NotBlank(message = "il cognome non può essere vuoto")
+    private String surname;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+    private LocalDate bornDate;
+
+    private String phoneNumber;
+
+    @NotBlank(message = "lo username non può essere vuoto")
     private String username;
-    @NotEmpty(message = "l'email non può essere vuota")
+
+    @NotBlank(message = "l'email non può essere vuota")
+    @Email(message = "formato email non valido")
     private String email;
-    @NotEmpty(message = "la password non può essere vuota")
+
+    @NotBlank(message = "la password non può essere vuota")
+    @Size(min = 8, message = "la password deve essere di almeno 8 caratteri")
+    @Pattern(
+            regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$£%^&+*=_!?~/|.,:;§]).*$",
+            message = "La password deve contenere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale (@ # $ £ % ^ & + * = _ ! ? ~ / | . , : ; §)"
+    )
     private String password;
+
+    private String avatarUrl;
 }

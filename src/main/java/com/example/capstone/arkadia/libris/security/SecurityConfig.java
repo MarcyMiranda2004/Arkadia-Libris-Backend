@@ -36,20 +36,7 @@ public class SecurityConfig {
 
         httpSecurity.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll()
-
-                // Eventi
-                .requestMatchers(HttpMethod.GET, "/eventi/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/eventi/**").hasAuthority("EVENT_CREATOR")
-                .requestMatchers(HttpMethod.PUT, "/eventi/**").hasAuthority("EVENT_CREATOR")
-                .requestMatchers(HttpMethod.DELETE, "/eventi/**").hasAuthority("EVENT_CREATOR")
-
-                // Prenotazioni
-                .requestMatchers(HttpMethod.POST, "/prenotazioni").hasAuthority("USER")
-                .requestMatchers(HttpMethod.DELETE, "/prenotazioni/**").hasAuthority("USER")
-                .requestMatchers(HttpMethod.GET, "/prenotazioni").hasAuthority("USER")
-                .requestMatchers(HttpMethod.GET, "/prenotazioni/**").hasAuthority("USER")
-
-                .anyRequest().denyAll()
+                .anyRequest().authenticated()
         );
 
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
