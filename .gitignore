@@ -1,3 +1,22 @@
+# Configurazioni Spring Boot e ambientali
+/application.properties
+/env.properties
+/*.properties
+
+# Maven POM (se ci metti credenziali o token)
+pom.xml
+
+# Se usi settings.xml locale per Maven
+~/.m2/settings.xml
+
+# IntelliJ, Eclipse, VSCode, build directory etc.
+.idea/
+*.iml
+target/
+/.vscode/
+/nbproject/
+*.log
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar

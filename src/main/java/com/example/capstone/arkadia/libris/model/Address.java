@@ -15,7 +15,7 @@ public class Address {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String streett;
+    private String street;
     private String city;
     private String country;
     private String postalCode;
