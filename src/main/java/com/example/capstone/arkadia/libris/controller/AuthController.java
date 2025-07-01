@@ -37,8 +37,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody @Validated LoginDto loginDto, BindingResult bindingResult)
-            throws ValidationException, NotFoundException {
+    public String login(@RequestBody @Validated LoginDto loginDto, BindingResult bindingResult) throws ValidationException, NotFoundException {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult.getAllErrors().stream()
                     .map(objectError -> objectError.getDefaultMessage())
