@@ -1,4 +1,4 @@
-package com.example.capstone.arkadia.libris.dto;
+package com.example.capstone.arkadia.libris.dto.response;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

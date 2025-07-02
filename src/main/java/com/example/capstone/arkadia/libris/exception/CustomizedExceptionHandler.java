@@ -1,7 +1,6 @@
 package com.example.capstone.arkadia.libris.exception;
 
 
-import com.example.capstone.arkadia.libris.model.ApiError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;

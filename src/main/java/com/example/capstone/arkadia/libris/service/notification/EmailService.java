@@ -1,4 +1,4 @@
-package com.example.capstone.arkadia.libris.service;
+package com.example.capstone.arkadia.libris.service.notification;
 
 import com.example.capstone.arkadia.libris.model.User;
 

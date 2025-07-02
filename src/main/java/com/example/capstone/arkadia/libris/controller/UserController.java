@@ -1,11 +1,13 @@
 package com.example.capstone.arkadia.libris.controller;
 
-import com.example.capstone.arkadia.libris.dto.*;
+import com.example.capstone.arkadia.libris.dto.response.UserDto;
+import com.example.capstone.arkadia.libris.dto.request.ChangeEmailDto;
+import com.example.capstone.arkadia.libris.dto.request.ChangePasswordDto;
+import com.example.capstone.arkadia.libris.dto.request.UpdateUserDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.exception.ValidationException;
-import com.example.capstone.arkadia.libris.model.Address;
 import com.example.capstone.arkadia.libris.model.User;
-import com.example.capstone.arkadia.libris.service.UserService;
+import com.example.capstone.arkadia.libris.service.user.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")

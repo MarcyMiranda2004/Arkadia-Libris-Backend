@@ -1,10 +1,11 @@
-package com.example.capstone.arkadia.libris.service;
+package com.example.capstone.arkadia.libris.service.user;
 
-import com.example.capstone.arkadia.libris.dto.AddressDto;
+import com.example.capstone.arkadia.libris.dto.response.AddressDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.model.Address;
 import com.example.capstone.arkadia.libris.model.User;
-import com.example.capstone.arkadia.libris.repository.Addressrepository;
+import com.example.capstone.arkadia.libris.repository.AddressRepository;
+import com.example.capstone.arkadia.libris.service.notification.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +16,7 @@ import java.util.List;
 public class AddressService {
 
     @Autowired
-    private Addressrepository addressRepository;
+    private AddressRepository addressRepository;
 
     @Autowired
     private UserService userService;

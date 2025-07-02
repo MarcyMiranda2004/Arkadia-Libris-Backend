@@ -1,4 +1,4 @@
-package com.example.capstone.arkadia.libris.dto;
+package com.example.capstone.arkadia.libris.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

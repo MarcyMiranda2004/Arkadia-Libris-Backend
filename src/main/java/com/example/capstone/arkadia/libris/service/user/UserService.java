@@ -1,12 +1,15 @@
-package com.example.capstone.arkadia.libris.service;
+package com.example.capstone.arkadia.libris.service.user;
 
 import com.cloudinary.Cloudinary;
-import com.example.capstone.arkadia.libris.dto.*;
+import com.example.capstone.arkadia.libris.dto.response.UserDto;
+import com.example.capstone.arkadia.libris.dto.request.ChangeEmailDto;
+import com.example.capstone.arkadia.libris.dto.request.ChangePasswordDto;
+import com.example.capstone.arkadia.libris.dto.request.UpdateUserDto;
 import com.example.capstone.arkadia.libris.enumerated.Role;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
-import com.example.capstone.arkadia.libris.model.Address;
 import com.example.capstone.arkadia.libris.model.User;
 import com.example.capstone.arkadia.libris.repository.UserRepository;
+import com.example.capstone.arkadia.libris.service.notification.EmailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,12 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {

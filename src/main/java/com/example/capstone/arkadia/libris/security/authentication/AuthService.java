@@ -1,4 +1,4 @@
-package com.example.capstone.arkadia.libris.service;
+package com.example.capstone.arkadia.libris.security.authentication;
 
 import com.example.capstone.arkadia.libris.dto.LoginDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;

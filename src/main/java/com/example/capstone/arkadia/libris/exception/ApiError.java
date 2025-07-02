@@ -1,4 +1,4 @@
-package com.example.capstone.arkadia.libris.model;
+package com.example.capstone.arkadia.libris.exception;
 
 import lombok.Data;
 

@@ -1,9 +1,9 @@
 package com.example.capstone.arkadia.libris.controller;
 
-import com.example.capstone.arkadia.libris.dto.AddressDto;
+import com.example.capstone.arkadia.libris.dto.response.AddressDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.exception.ValidationException;
-import com.example.capstone.arkadia.libris.service.AddressService;
+import com.example.capstone.arkadia.libris.service.user.AddressService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.example.capstone.arkadia.libris.configuration;
+package com.example.capstone.arkadia.libris;
 
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Value;

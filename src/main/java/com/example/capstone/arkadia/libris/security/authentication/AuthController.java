@@ -1,13 +1,12 @@
-package com.example.capstone.arkadia.libris.controller;
+package com.example.capstone.arkadia.libris.security.authentication;
 
 
 import com.example.capstone.arkadia.libris.dto.LoginDto;
-import com.example.capstone.arkadia.libris.dto.UserDto;
+import com.example.capstone.arkadia.libris.dto.response.UserDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.exception.ValidationException;
 import com.example.capstone.arkadia.libris.model.User;
-import com.example.capstone.arkadia.libris.service.AuthService;
-import com.example.capstone.arkadia.libris.service.UserService;
+import com.example.capstone.arkadia.libris.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;

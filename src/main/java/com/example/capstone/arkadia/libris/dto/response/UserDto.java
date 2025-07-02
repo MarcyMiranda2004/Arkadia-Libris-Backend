@@ -1,9 +1,8 @@
-package com.example.capstone.arkadia.libris.dto;
+package com.example.capstone.arkadia.libris.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
