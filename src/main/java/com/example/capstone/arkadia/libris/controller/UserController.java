@@ -1,29 +1,30 @@
 package com.example.capstone.arkadia.libris.controller;
 
-import com.example.capstone.arkadia.libris.dto.ChangeEmailDto;
-import com.example.capstone.arkadia.libris.dto.ChangePasswordDto;
-import com.example.capstone.arkadia.libris.dto.UserDto;
+import com.example.capstone.arkadia.libris.dto.*;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.exception.ValidationException;
+import com.example.capstone.arkadia.libris.model.Address;
 import com.example.capstone.arkadia.libris.model.User;
 import com.example.capstone.arkadia.libris.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    public UserController(UserService userService) {this.userService = userService;}
 
-    // Create new user
     @PostMapping
     public ResponseEntity<User> createUser(
             @RequestBody @Valid UserDto userDto,
@@ -37,44 +38,50 @@ public class UserController {
         return ResponseEntity.status(201).body(created);
     }
 
-    // Get all users
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUser());
-    }
+    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
+    public ResponseEntity<List<User>> getAllUsers() {return ResponseEntity.ok(userService.getAllUser());}
 
-    // Get user by id
     @GetMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) throws NotFoundException {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
-    // Update user basic info
+    @GetMapping("/email/{email}")
+    @PreAuthorize(("#email == authentication.principal.email or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')"))
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) throws NotFoundException {
+        return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
+
+    @GetMapping("/username/{Username}")
+    public ResponseEntity<User> getUserByUsername(@PathVariable String Username) throws NotFoundException {
+        return ResponseEntity.ok(userService.getUserByUsername(Username));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(
-            @PathVariable Long id,
-            @RequestBody @Valid UserDto userDto,
+    @PreAuthorize("#id == authentication.principal.id")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody @Valid UpdateUserDto updateUserDto,
             BindingResult br) throws NotFoundException {
         if (br.hasErrors()) {
             throw new ValidationException(br.getAllErrors().stream()
                     .map(e -> e.getDefaultMessage())
                     .reduce((a, b) -> a + "; " + b).orElse(""));
         }
-        User updated = userService.updateUser(id, userDto);
+        User updated = userService.updateUser(id, updateUserDto);
         return ResponseEntity.ok(updated);
     }
 
-    // Update avatar URL
-    @PatchMapping("/{id}/avatar")
-    public ResponseEntity<User> updateAvatar(
-            @PathVariable Long id,
-            @RequestParam String avatarUrl) throws NotFoundException {
-        User updated = userService.updateUserAvatar(id, avatarUrl);
+    @PatchMapping(path = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("#id == authentication.principal.id")
+    public ResponseEntity<String> updateAvatar(@PathVariable Long id, @RequestParam("file") MultipartFile file
+    ) throws NotFoundException, IOException {
+        String updated = userService.updateUserAvatar(id, file);
         return ResponseEntity.ok(updated);
     }
 
-    // Change password
     @PutMapping("/{id}/password")
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
     public ResponseEntity<Void> changePassword(
             @PathVariable Long id,
             @Valid @RequestBody ChangePasswordDto changePasswordDto,
@@ -89,6 +96,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/email")
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
     public ResponseEntity<Void> changeEmail(
             @PathVariable Long id,
             @Valid @RequestBody ChangeEmailDto changeEmailDto,
@@ -103,6 +111,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal.id")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws NotFoundException {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();

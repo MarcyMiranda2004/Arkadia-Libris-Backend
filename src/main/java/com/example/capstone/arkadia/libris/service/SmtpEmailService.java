@@ -14,20 +14,18 @@ public class SmtpEmailService implements EmailService {
 
     public SmtpEmailService(JavaMailSender mailSender,
                             @Value("${mail.no-reply}") String noReplyAddress) {
-        this.mailSender      = mailSender;
-        this.noReplyAddress  = noReplyAddress;
+        this.mailSender     = mailSender;
+        this.noReplyAddress = noReplyAddress;
     }
 
     @Override
     public void sendRegistrationConfirmation(User user) {
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom(noReplyAddress);
-        msg.setReplyTo(noReplyAddress);
         msg.setTo(user.getEmail());
         msg.setSubject("Benvenuto in Arkadia Libris!");
         msg.setText("Ciao " + user.getName() + ",\n\n" +
-                "Grazie per esserti registrato su Arkadia Libris.\n" +
-                "Buona lettura!\n\n" +
+                "Grazie per esserti registrato su Arkadia Libris.\n\n" +
                 "— Il team Arkadia Libris");
         mailSender.send(msg);
     }
@@ -36,7 +34,6 @@ public class SmtpEmailService implements EmailService {
     public void sendPasswordChangedNotice(User user) {
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom(noReplyAddress);
-        msg.setReplyTo(noReplyAddress);
         msg.setTo(user.getEmail());
         msg.setSubject("Arkadia Libris – Password aggiornata");
         msg.setText("Ciao " + user.getName() + ",\n\n" +
@@ -46,16 +43,37 @@ public class SmtpEmailService implements EmailService {
     }
 
     @Override
-    public void sendEmailChangeConfirmation(User user, String newEmail) {
+    public void sendEmailChangeConfirmation(User user, String newEmail, String currentEmail) {
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom(noReplyAddress);
-        msg.setReplyTo(noReplyAddress);
-        msg.setTo(newEmail);
+        msg.setTo(currentEmail, newEmail);
         msg.setSubject("Arkadia Libris – Email aggiornata");
         msg.setText("Ciao " + user.getName() + ",\n\n" +
-                "Il tuo indirizzo email è stato modificato in " + newEmail + ".\n\n" +
+                "Il tuo indirizzo email è stato modificato da " + currentEmail + " a " + newEmail +  ".\n\n" +
+                "— Il team Arkadia Libris");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendEmailAddressaddedNotice(String email) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(noReplyAddress);
+        msg.setTo(email);
+        msg.setSubject("Arkadia Libris – Indirizzo aggiunto");
+        msg.setText("Hai aggiunto un nuovo indirizzo al tuo profilo.\n\n" +
+                "— Il team Arkadia Libris");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendDeleteAccountNotice(User user, String reason) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(noReplyAddress);
+        msg.setTo(user.getEmail());
+        msg.setSubject("Arkadia Libris – Account eliminato");
+        msg.setText("Ciao " + user.getName() + ",\n\n" +
+                "Il tuo account è stato eliminato. Motivo: " + reason + ".\n\n" +
                 "— Il team Arkadia Libris");
         mailSender.send(msg);
     }
 }
-

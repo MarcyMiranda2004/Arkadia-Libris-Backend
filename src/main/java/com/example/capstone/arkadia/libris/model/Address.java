@@ -1,5 +1,6 @@
 package com.example.capstone.arkadia.libris.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,8 +14,10 @@ public class Address {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 
+    private String name;
     private String street;
     private String city;
     private String country;

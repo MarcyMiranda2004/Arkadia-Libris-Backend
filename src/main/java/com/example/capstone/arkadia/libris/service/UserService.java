@@ -1,11 +1,10 @@
 package com.example.capstone.arkadia.libris.service;
 
 import com.cloudinary.Cloudinary;
-import com.example.capstone.arkadia.libris.dto.ChangeEmailDto;
-import com.example.capstone.arkadia.libris.dto.ChangePasswordDto;
-import com.example.capstone.arkadia.libris.dto.UserDto;
+import com.example.capstone.arkadia.libris.dto.*;
 import com.example.capstone.arkadia.libris.enumerated.Role;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
+import com.example.capstone.arkadia.libris.model.Address;
 import com.example.capstone.arkadia.libris.model.User;
 import com.example.capstone.arkadia.libris.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -13,8 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -31,7 +37,7 @@ public class UserService {
     @Autowired
     private EmailService emailService;
 
-    public User saveUser(UserDto userDto){
+    public User saveUser(UserDto userDto) {
         User u = new User();
         u.setName(userDto.getName());
         u.setSurname(userDto.getSurname());
@@ -56,20 +62,34 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User con id " + id + " non trovato"));
     }
 
-    public User updateUser(Long id, UserDto userDto) throws NotFoundException {
+    public User getUserByEmail(String email) throws NotFoundException {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User con email " + email + " non trovato"));
+    }
+
+    public User getUserByUsername(String username) throws NotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("User con username " + username + " non trovato"));
+    }
+
+    public User updateUser(Long id, UpdateUserDto updateUserDto) throws NotFoundException {
         User u = getUser(id);
-        u.setName(userDto.getName());
-        u.setSurname(userDto.getSurname());
-        u.setUsername(userDto.getUsername());
-        u.setBornDate(userDto.getBornDate());
-        u.setPhoneNumber(userDto.getPhoneNumber());
+        u.setName(updateUserDto.getName());
+        u.setSurname(updateUserDto.getSurname());
+        u.setUsername(updateUserDto.getUsername());
+        u.setBornDate(updateUserDto.getBornDate());
+        u.setPhoneNumber(updateUserDto.getPhoneNumber());
         return userRepository.save(u);
     }
 
-    public User updateUserAvatar(Long id, String avatarUrl) throws NotFoundException {
+    public String updateUserAvatar(Long id, MultipartFile avatarUrl) throws NotFoundException, IOException {
         User u = getUser(id);
-        u.setAvatarUrl(avatarUrl);
-        return userRepository.save(u);
+        String url = (String) cloudinary.uploader()
+                .upload(avatarUrl.getBytes(), Collections.emptyMap())
+                .get("url");
+        u.setAvatarUrl(url);
+        userRepository.save(u);
+        return url;
     }
 
     @Transactional
@@ -87,24 +107,25 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserEmail(Long id, ChangeEmailDto dto) throws NotFoundException {
+    public void updateUserEmail(Long id, ChangeEmailDto changeEmailDto) throws NotFoundException {
         User u = getUser(id);
-        if (!passwordEncoder.matches(dto.getPassword(), u.getPassword())) {
+        if (!passwordEncoder.matches(changeEmailDto.getPassword(), u.getPassword())) {
             throw new BadCredentialsException("La password non corrisponde");
         }
-        if (!u.getEmail().equals(dto.getCurrentEmail())) {
+        if (!u.getEmail().equals(changeEmailDto.getCurrentEmail())) {
             throw new BadCredentialsException("Inserisci l'email corrente corretta");
         }
-        if (!dto.getNewEmail().equals(dto.getConfirmNewEmail())) {
+        if (!changeEmailDto.getNewEmail().equals(changeEmailDto.getConfirmNewEmail())) {
             throw new BadCredentialsException("La nuova email e la conferma non corrispondono");
         }
-        u.setEmail(dto.getNewEmail());
+        u.setEmail(changeEmailDto.getNewEmail());
         userRepository.save(u);
-        emailService.sendEmailChangeConfirmation(u, dto.getNewEmail());
+        emailService.sendEmailChangeConfirmation(u,changeEmailDto.getNewEmail(), changeEmailDto.getCurrentEmail());
     }
 
     public void deleteUser(Long id) throws NotFoundException {
         User u = getUser(id);
+        emailService.sendDeleteAccountNotice(u, "Account eliminato dall'utente");
         userRepository.delete(u);
     }
 }
