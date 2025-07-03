@@ -122,9 +122,13 @@ public class UserService {
         emailService.sendEmailChangeConfirmation(u,changeEmailDto.getNewEmail(), changeEmailDto.getCurrentEmail());
     }
 
-    public void deleteUser(Long id) throws NotFoundException {
+    @Transactional
+    public void deleteUser(Long id, String rawPassword) throws NotFoundException {
         User u = getUser(id);
-        emailService.sendDeleteAccountNotice(u, "Account eliminato dall'utente");
+        if (!passwordEncoder.matches(rawPassword, u.getPassword())) {
+            throw new BadCredentialsException("Password non corretta");
+        }
         userRepository.delete(u);
+        emailService.sendDeleteAccountNotice(u, "Account Eliminato su richiesta dell'utente");
     }
 }

@@ -1,5 +1,6 @@
 package com.example.capstone.arkadia.libris.controller;
 
+import com.example.capstone.arkadia.libris.dto.request.DeleteUserDto;
 import com.example.capstone.arkadia.libris.dto.response.UserDto;
 import com.example.capstone.arkadia.libris.dto.request.ChangeEmailDto;
 import com.example.capstone.arkadia.libris.dto.request.ChangePasswordDto;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -113,8 +115,18 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("#id == authentication.principal.id")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws NotFoundException {
-        userService.deleteUser(id);
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @RequestBody @Valid DeleteUserDto deleteUserDto,
+            BindingResult br
+    ) throws NotFoundException {
+        if (br.hasErrors()) {
+            String errs = br.getAllErrors().stream()
+                    .map(e -> e.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
+            throw new ValidationException(errs);
+        }
+        userService.deleteUser(id, deleteUserDto.getPassword());
         return ResponseEntity.noContent().build();
     }
 }
