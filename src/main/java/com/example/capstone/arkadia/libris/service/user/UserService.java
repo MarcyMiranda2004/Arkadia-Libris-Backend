@@ -1,14 +1,16 @@
 package com.example.capstone.arkadia.libris.service.user;
 
 import com.cloudinary.Cloudinary;
-import com.example.capstone.arkadia.libris.dto.response.UserDto;
-import com.example.capstone.arkadia.libris.dto.request.ChangeEmailDto;
-import com.example.capstone.arkadia.libris.dto.request.ChangePasswordDto;
-import com.example.capstone.arkadia.libris.dto.request.UpdateUserDto;
+import com.example.capstone.arkadia.libris.dto.response.user.UserDto;
+import com.example.capstone.arkadia.libris.dto.request.user.ChangeEmailDto;
+import com.example.capstone.arkadia.libris.dto.request.user.ChangePasswordDto;
+import com.example.capstone.arkadia.libris.dto.request.user.UpdateUserDto;
 import com.example.capstone.arkadia.libris.enumerated.Role;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
-import com.example.capstone.arkadia.libris.model.User;
-import com.example.capstone.arkadia.libris.repository.UserRepository;
+import com.example.capstone.arkadia.libris.model.purchase.Cart;
+import com.example.capstone.arkadia.libris.model.user.User;
+import com.example.capstone.arkadia.libris.repository.purchase.CartRepository;
+import com.example.capstone.arkadia.libris.repository.user.UserRepository;
 import com.example.capstone.arkadia.libris.service.notification.EmailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,17 +26,11 @@ import java.util.List;
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private Cloudinary cloudinary;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private EmailService emailService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private CartRepository cartRepository;
+    @Autowired private Cloudinary cloudinary;
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private EmailService emailService;
 
     public User saveUser(UserDto userDto) {
         User u = new User();
@@ -49,6 +45,13 @@ public class UserService {
 
         User savedUser = userRepository.save(u);
         emailService.sendRegistrationConfirmation(savedUser);
+
+        Cart cart = new Cart();
+        cart.setUser(savedUser);
+        cartRepository.save(cart);
+
+        savedUser.setCart(cart);
+
         return savedUser;
     }
 

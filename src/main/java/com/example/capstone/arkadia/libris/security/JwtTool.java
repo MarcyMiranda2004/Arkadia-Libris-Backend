@@ -1,7 +1,7 @@
 package com.example.capstone.arkadia.libris.security;
 
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
-import com.example.capstone.arkadia.libris.model.User;
+import com.example.capstone.arkadia.libris.model.user.User;
 import com.example.capstone.arkadia.libris.service.user.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;

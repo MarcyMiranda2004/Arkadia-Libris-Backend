@@ -1,6 +1,6 @@
 package com.example.capstone.arkadia.libris.service.notification;
 
-import com.example.capstone.arkadia.libris.model.User;
+import com.example.capstone.arkadia.libris.model.user.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -76,4 +76,18 @@ public class SmtpEmailService implements EmailService {
                 "— Il team Arkadia Libris");
         mailSender.send(msg);
     }
+
+    @Override
+    public void sendOrderConfirmation(User user, Long orderId, double totalAmount) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(noReplyAddress);
+        msg.setTo(user.getEmail());
+        msg.setSubject("Arkadia Libris - Conferma Ordine" + orderId);
+        msg.setText("Ciao " + user.getName() + ",\n\n"
+                + "Il tuo ordine #" + orderId + " è stato ricevuto.\n"
+                + "Importo totale: €" + totalAmount + ".\n\n"
+                + "Grazie per l'acquisto!\n— Il team Arkadia Libris");
+        mailSender.send(msg);
+    }
+
 }

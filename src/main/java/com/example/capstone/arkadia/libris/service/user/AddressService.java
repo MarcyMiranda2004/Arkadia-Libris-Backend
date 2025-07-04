@@ -1,10 +1,10 @@
 package com.example.capstone.arkadia.libris.service.user;
 
-import com.example.capstone.arkadia.libris.dto.response.AddressDto;
+import com.example.capstone.arkadia.libris.dto.response.user.AddressDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
-import com.example.capstone.arkadia.libris.model.Address;
-import com.example.capstone.arkadia.libris.model.User;
-import com.example.capstone.arkadia.libris.repository.AddressRepository;
+import com.example.capstone.arkadia.libris.model.user.Address;
+import com.example.capstone.arkadia.libris.model.user.User;
+import com.example.capstone.arkadia.libris.repository.user.AddressRepository;
 import com.example.capstone.arkadia.libris.service.notification.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +32,7 @@ public class AddressService {
         a.setName(addressDto.getName());
         a.setStreet(addressDto.getStreet());
         a.setCity(addressDto.getCity());
+        a.setProvince(addressDto.getProvince());
         a.setCountry(addressDto.getCountry());
         a.setPostalCode(addressDto.getPostalCode());
 
@@ -52,6 +53,7 @@ public class AddressService {
         a.setName(addressDto.getName());
         a.setStreet(addressDto.getStreet());
         a.setCity(addressDto.getCity());
+        a.setProvince(addressDto.getProvince());
         a.setCountry(addressDto.getCountry());
         a.setPostalCode(addressDto.getPostalCode());
 
@@ -78,6 +80,7 @@ public class AddressService {
                     addressDto.setName(a.getName());
                     addressDto.setStreet(a.getStreet());
                     addressDto.setCity(a.getCity());
+                    addressDto.setProvince(a.getProvince());
                     addressDto.setCountry(a.getCountry());
                     addressDto.setPostalCode(a.getPostalCode());
                     return addressDto;

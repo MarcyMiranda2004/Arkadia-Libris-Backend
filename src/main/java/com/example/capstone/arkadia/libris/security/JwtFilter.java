@@ -2,7 +2,7 @@ package com.example.capstone.arkadia.libris.security;
 
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.exception.UnAuthorizedException;
-import com.example.capstone.arkadia.libris.model.User;
+import com.example.capstone.arkadia.libris.model.user.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

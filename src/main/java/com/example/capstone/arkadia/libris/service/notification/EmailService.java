@@ -1,6 +1,6 @@
 package com.example.capstone.arkadia.libris.service.notification;
 
-import com.example.capstone.arkadia.libris.model.User;
+import com.example.capstone.arkadia.libris.model.user.User;
 
 public interface EmailService {
     void sendRegistrationConfirmation(User user);
@@ -12,4 +12,6 @@ public interface EmailService {
     void sendEmailAddressaddedNotice(String email);
 
     void sendDeleteAccountNotice(User user, String reason);
+
+    void sendOrderConfirmation(User user, Long orderId, double totalAmount);
 }
