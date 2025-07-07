@@ -12,8 +12,7 @@ public class SmtpEmailService implements EmailService {
     private final JavaMailSender mailSender;
     private final String noReplyAddress;
 
-    public SmtpEmailService(JavaMailSender mailSender,
-                            @Value("${mail.no-reply}") String noReplyAddress) {
+    public SmtpEmailService(JavaMailSender mailSender, @Value("${mail.no-reply}") String noReplyAddress) {
         this.mailSender     = mailSender;
         this.noReplyAddress = noReplyAddress;
     }
@@ -89,5 +88,25 @@ public class SmtpEmailService implements EmailService {
                 + "Grazie per l'acquisto!\n— Il team Arkadia Libris");
         mailSender.send(msg);
     }
+
+    @Override
+    public void sendPasswordReset(User user, String token) {
+        // punta al  server, non ancora alla pagina web, DA AGGIORNARE
+        String resetLink = "http://localhost:8080/auth/reset-password?token=" + token;
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setFrom(noReplyAddress);
+        msg.setTo(user.getEmail());
+        msg.setSubject("Arkadia Libris – Reset Password");
+        msg.setText(
+                "Ciao " + user.getName() + ",\n\n" +
+                        "Abbiamo ricevuto una richiesta di reset password.\n" +
+                        "Clicca sul link qui sotto per impostare una nuova password:\n\n" +
+                        resetLink + "\n\n" +
+                        "Se non hai richiesto tu il reset, ignora questa email.\n\n" +
+                        "— Il team Arkadia Libris"
+        );
+        mailSender.send(msg);
+    }
+
 
 }

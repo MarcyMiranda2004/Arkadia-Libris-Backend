@@ -14,4 +14,7 @@ public interface EmailService {
     void sendDeleteAccountNotice(User user, String reason);
 
     void sendOrderConfirmation(User user, Long orderId, double totalAmount);
+
+    void sendPasswordReset(User user, String token);
+
 }
