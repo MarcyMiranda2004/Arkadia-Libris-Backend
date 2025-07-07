@@ -34,10 +34,7 @@ public class CartService {
 
         CartDto cartDto = new CartDto();
         cartDto.setCartId(cart.getId());
-        cartDto.setItems(cart.getItems()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList()));
+        cartDto.setItems(cart.getItems().stream().map(this::toDto).collect(Collectors.toList()));
         return cartDto;
     }
 
@@ -61,8 +58,7 @@ public class CartService {
                 });
 
         Optional<CartItem> existing = cart.getItems().stream()
-                .filter(i -> i.getProduct().getId().equals(productId))
-                .findAny();
+                .filter(i -> i.getProduct().getId().equals(productId)).findAny();
 
         CartItem item = existing.orElseGet(() -> {
             CartItem ci = new CartItem();

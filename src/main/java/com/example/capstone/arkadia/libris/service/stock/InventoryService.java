@@ -1,4 +1,3 @@
-// src/main/java/com/example/capstone/arkadia/libris/service/stock/InventoryService.java
 package com.example.capstone.arkadia.libris.service.stock;
 
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
@@ -49,6 +48,7 @@ public class InventoryService {
                 .map(InventoryItem::getQuantity)
                 .orElse(0);
     }
+
     public List<InventoryItem> listAll() {
         return inventoryRepository.findAll();
     }

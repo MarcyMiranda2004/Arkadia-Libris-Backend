@@ -1,6 +1,5 @@
-package com.example.capstone.arkadia.libris.model.purchase;
+package com.example.capstone.arkadia.libris.model.user;
 
-import com.example.capstone.arkadia.libris.model.user.User;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -10,8 +9,8 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "carts")
-public class Cart {
+@Table(name = "wishlists")
+public class Wishlist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,7 +20,6 @@ public class Cart {
     @JsonBackReference
     private User user;
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartItem> items = new ArrayList<>();
-
+    @OneToMany(mappedBy = "wishlist", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WishlistItem> items = new ArrayList<>();
 }

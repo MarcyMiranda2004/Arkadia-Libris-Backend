@@ -39,50 +39,54 @@ public class ProductService {
         return toDto(p);
     }
 
+    public Product getProductById(Long id) throws NotFoundException {
+        return productRepository.findById(id).orElseThrow(() -> new NotFoundException("Prodotto non trovato"));
+    }
+
     @Transactional
-    public ProductDto create(CreateProductRequestDto req) {
+    public ProductDto create(CreateProductRequestDto request) {
         Product p = new Product();
-        p.setTitle(req.getTitle());
-        p.setIsbn(req.getIsbn());
-        p.setAuthor(req.getAuthor());
-        p.setPublisher(req.getPublisher());
-        p.setDescription(req.getDescription());
-        p.setPrice(req.getPrice());
-        p.setProductType(req.getProductType());
+        p.setTitle(request.getTitle());
+        p.setIsbn(request.getIsbn());
+        p.setAuthor(request.getAuthor());
+        p.setPublisher(request.getPublisher());
+        p.setDescription(request.getDescription());
+        p.setPrice(request.getPrice());
+        p.setProductType(request.getProductType());
 
         p.getCategories().clear();
-        for (String name : req.getCategories()) {
+        for (String name : request.getCategories()) {
             Category cat = categoryRepository
-                    .findByNameIgnoreCaseAndProductCategoryType(name, req.getProductType())
+                    .findByNameIgnoreCaseAndProductCategoryType(name, request.getProductType())
                     .orElseThrow(() -> new ValidationException(
-                            "Categoria '" + name + "' non trovata per tipo " + req.getProductType()));
+                            "Categoria '" + name + "' non trovata per tipo " + request.getProductType()));
             p.getCategories().add(cat);
         }
 
         p.getImages().clear();
-        p.getImages().addAll(req.getImages());
+        p.getImages().addAll(request.getImages());
         if (p.getImages().isEmpty()) {
             p.getImages().add("/images/book-cover-placeholder.png");
         }
 
         Product saved = productRepository.save(p);
-        inventoryService.increase(saved.getId(), req.getInitialStock());
+        inventoryService.increase(saved.getId(), request.getInitialStock());
         return toDto(saved);
     }
 
     @Transactional
-    public ProductDto update(Long id, UpdateProductRequestDto req) throws NotFoundException {
+    public ProductDto update(Long id, UpdateProductRequestDto request) throws NotFoundException {
         Product p = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Prodotto non trovato"));
 
-        p.setTitle(req.getTitle());
-        p.setIsbn(req.getIsbn());
-        p.setAuthor(req.getAuthor());
-        p.setPublisher(req.getPublisher());
-        p.setDescription(req.getDescription());
-        p.setPrice(req.getPrice());
+        p.setTitle(request.getTitle());
+        p.setIsbn(request.getIsbn());
+        p.setAuthor(request.getAuthor());
+        p.setPublisher(request.getPublisher());
+        p.setDescription(request.getDescription());
+        p.setPrice(request.getPrice());
 
         p.getCategories().clear();
-        for (String name : req.getCategories()) {
+        for (String name : request.getCategories()) {
             Category cat = categoryRepository
                     .findByNameIgnoreCaseAndProductCategoryType(name, p.getProductType())
                     .orElseThrow(() -> new ValidationException(
@@ -91,7 +95,7 @@ public class ProductService {
         }
 
         p.getImages().clear();
-        p.getImages().addAll(req.getImages());
+        p.getImages().addAll(request.getImages());
         if (p.getImages().isEmpty()) {
             p.getImages().add("/images/book-cover-placeholder.png");
         }

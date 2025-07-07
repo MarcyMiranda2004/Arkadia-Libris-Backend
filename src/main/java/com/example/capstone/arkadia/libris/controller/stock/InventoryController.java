@@ -1,10 +1,11 @@
-// src/main/java/com/example/capstone/arkadia/libris/controller/stock/InventoryController.java
 package com.example.capstone.arkadia.libris.controller.stock;
 
 import com.example.capstone.arkadia.libris.dto.request.stock.StockRequestDto;
 import com.example.capstone.arkadia.libris.dto.response.stock.InventoryItemDto;
-import com.example.capstone.arkadia.libris.model.stock.InventoryItem;
+import com.example.capstone.arkadia.libris.dto.response.stock.ProductDto;
+import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.service.stock.InventoryService;
+import com.example.capstone.arkadia.libris.service.stock.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,47 +16,57 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/products/{productId}/stock")
+@RequestMapping("/products")
 public class InventoryController {
 
     @Autowired private InventoryService inventoryService;
+    @Autowired private ProductService    productService;
 
-    @PostMapping("/increase")
+    @PostMapping("/{productId}/stock/increase")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ResponseEntity<Void> increase(
             @PathVariable Long productId,
-            @RequestBody @Valid StockRequestDto dto
+            @RequestBody @Valid StockRequestDto stockRequestDto
     ) {
-        inventoryService.increase(productId, dto.getQuantity());
+        inventoryService.increase(productId, stockRequestDto.getQuantity());
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/decrease")
+    @PostMapping("/{productId}/stock/decrease")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ResponseEntity<Void> decrease(
             @PathVariable Long productId,
-            @RequestBody @Valid StockRequestDto dto
+            @RequestBody @Valid StockRequestDto stockRequestDto
     ) {
-        inventoryService.decrease(productId, dto.getQuantity());
+        inventoryService.decrease(productId, stockRequestDto.getQuantity());
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/all")
+    @GetMapping("/{productId}/stock")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
-    public ResponseEntity<List<InventoryItemDto>> listAll(
+    public ResponseEntity<InventoryItemDto> getStock(
             @PathVariable Long productId
-    ) {
-        List<InventoryItemDto> dto = inventoryService.listAll().stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(dto);
+    ) throws NotFoundException {
+        ProductDto productDto = productService.getById(productId);
+        InventoryItemDto inventoryItemDto = new InventoryItemDto();
+        inventoryItemDto.setProductId(productId);
+        inventoryItemDto.setTitle(productDto.getTitle());
+        inventoryItemDto.setQuantity(inventoryService.getStock(productId));
+        return ResponseEntity.ok(inventoryItemDto);
     }
 
-    private InventoryItemDto toDto(InventoryItem inv) {
-        InventoryItemDto d = new InventoryItemDto();
-        d.setProductId(inv.getProduct().getId());
-        d.setTitle(inv.getProduct().getTitle());
-        d.setQuantity(inv.getQuantity());
-        return d;
+    @GetMapping("/stock")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ResponseEntity<List<InventoryItemDto>> listAll() {
+        List<InventoryItemDto> list = inventoryService.listAll().stream()
+                .map(inv -> {
+                    InventoryItemDto d = new InventoryItemDto();
+                    d.setProductId(inv.getProduct().getId());
+                    d.setTitle(inv.getProduct().getTitle());
+                    d.setQuantity(inv.getQuantity());
+                    return d;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(list);
     }
 }

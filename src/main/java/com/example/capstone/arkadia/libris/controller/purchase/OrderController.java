@@ -2,9 +2,7 @@ package com.example.capstone.arkadia.libris.controller.purchase;
 
 import com.example.capstone.arkadia.libris.dto.request.user.CheckoutRequestDto;
 import com.example.capstone.arkadia.libris.dto.response.purchase.OrderDto;
-import com.example.capstone.arkadia.libris.exception.ErrorResponse;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
-import com.example.capstone.arkadia.libris.exception.OutOfStockException;
 import com.example.capstone.arkadia.libris.service.purchase.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +46,5 @@ public class OrderController {
     ) throws NotFoundException {
         OrderDto dto = orderService.checkout(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
-    }
-
-    @ExceptionHandler(OutOfStockException.class)
-    public ResponseEntity<ErrorResponse> handleOutOfStock(OutOfStockException ex) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse(ex.getMessage()));
     }
 }

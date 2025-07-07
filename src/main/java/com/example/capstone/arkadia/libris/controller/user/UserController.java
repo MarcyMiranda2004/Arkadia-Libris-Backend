@@ -29,9 +29,7 @@ public class UserController {
     public UserController(UserService userService) {this.userService = userService;}
 
     @PostMapping
-    public ResponseEntity<User> createUser(
-            @RequestBody @Valid UserDto userDto,
-            BindingResult br) {
+    public ResponseEntity<User> createUser(@RequestBody @Valid UserDto userDto, BindingResult br) {
         if (br.hasErrors()) {
             throw new ValidationException(br.getAllErrors().stream()
                     .map(e -> e.getDefaultMessage())

@@ -46,6 +46,10 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Cart cart;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Wishlist Wishlist;
+
     @Email
     @NotBlank
     @Column(unique = true)
