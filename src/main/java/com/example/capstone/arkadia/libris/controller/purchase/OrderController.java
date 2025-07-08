@@ -2,9 +2,11 @@ package com.example.capstone.arkadia.libris.controller.purchase;
 
 import com.example.capstone.arkadia.libris.dto.request.user.CheckoutRequestDto;
 import com.example.capstone.arkadia.libris.dto.response.purchase.OrderDto;
+import com.example.capstone.arkadia.libris.enumerated.OrderStatus;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.service.purchase.OrderService;
 import jakarta.validation.Valid;
+import jdk.jshell.Snippet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,5 +48,16 @@ public class OrderController {
     ) throws NotFoundException {
         OrderDto dto = orderService.checkout(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+    }
+
+    @PatchMapping("{orderId}/status")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
+    public ResponseEntity<Void> updateStatus(
+            @PathVariable Long userId,
+            @PathVariable Long orderId,
+            @RequestParam OrderStatus status
+    ) throws NotFoundException {
+        orderService.updateStatus(userId, orderId, status);
+        return ResponseEntity.noContent().build();
     }
 }

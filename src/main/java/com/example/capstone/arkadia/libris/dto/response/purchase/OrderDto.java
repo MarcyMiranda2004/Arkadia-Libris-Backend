@@ -1,6 +1,7 @@
 package com.example.capstone.arkadia.libris.dto.response.purchase;
 
 import com.example.capstone.arkadia.libris.dto.response.user.AddressDto;
+import com.example.capstone.arkadia.libris.enumerated.OrderStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -14,4 +15,5 @@ public class OrderDto {
     private AddressDto shippingAddress;
     private AddressDto billingAddress;
     private List<OrderItemDto> items;
+    private OrderStatus orderStatus;
 }

@@ -1,5 +1,6 @@
 package com.example.capstone.arkadia.libris.model.purchase;
 
+import com.example.capstone.arkadia.libris.enumerated.OrderStatus;
 import com.example.capstone.arkadia.libris.model.user.Address;
 import com.example.capstone.arkadia.libris.model.user.User;
 import jakarta.persistence.*;
@@ -34,5 +35,9 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OrderStatus orderStatus;
 }
 

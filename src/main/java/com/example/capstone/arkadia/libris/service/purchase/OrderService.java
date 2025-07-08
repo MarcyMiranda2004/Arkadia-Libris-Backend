@@ -4,6 +4,7 @@ import com.example.capstone.arkadia.libris.dto.request.user.CheckoutRequestDto;
 import com.example.capstone.arkadia.libris.dto.response.user.AddressDto;
 import com.example.capstone.arkadia.libris.dto.response.purchase.OrderDto;
 import com.example.capstone.arkadia.libris.dto.response.purchase.OrderItemDto;
+import com.example.capstone.arkadia.libris.enumerated.OrderStatus;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.exception.OutOfStockException;
 import com.example.capstone.arkadia.libris.model.user.Address;
@@ -76,6 +77,7 @@ public class OrderService {
 
         double total = orderItems.stream().mapToDouble(i -> i.getQuantity() * i.getUnitPrice()).sum();
         order.setTotalAmount(total);
+        order.setOrderStatus(OrderStatus.IN_PREPARAZIONE);
 
         Order saved = orderRepository.save(order);
         cartService.clearCart(userId);
@@ -96,12 +98,13 @@ public class OrderService {
     }
 
     private OrderDto toDto(Order order) {
-        OrderDto dto = new OrderDto();
-        dto.setOrderId(order.getId());
-        dto.setOrderDate(order.getOrderDate());
-        dto.setTotalAmmount(order.getTotalAmount());
-        dto.setShippingAddress(mapAddress(order.getShippingAddress()));
-        dto.setBillingAddress(mapAddress(order.getBillingAddress()));
+        OrderDto orderDto = new OrderDto();
+        orderDto.setOrderId(order.getId());
+        orderDto.setOrderDate(order.getOrderDate());
+        orderDto.setTotalAmmount(order.getTotalAmount());
+        orderDto.setShippingAddress(mapAddress(order.getShippingAddress()));
+        orderDto.setBillingAddress(mapAddress(order.getBillingAddress()));
+        orderDto.setOrderStatus(order.getOrderStatus());
         List<OrderItemDto> items = order.getItems().stream().map(oi -> {
             OrderItemDto it = new OrderItemDto();
             it.setProductId(oi.getProduct().getId());
@@ -110,8 +113,8 @@ public class OrderService {
             it.setPrice(oi.getUnitPrice());
             return it;
         }).collect(Collectors.toList());
-        dto.setItems(items);
-        return dto;
+        orderDto.setItems(items);
+        return orderDto;
     }
 
     private AddressDto mapAddress(Address a) {
@@ -124,4 +127,23 @@ public class OrderService {
         ad.setPostalCode(a.getPostalCode());
         return ad;
     }
+
+    @Transactional
+    public void markAsPaid(Long orderId) {
+        Order o = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Ordine non trovato"));
+        o.setOrderStatus(OrderStatus.IN_PREPARAZIONE);
+        orderRepository.save(o);
+        emailService.sendOrderConfirmation(o.getUser(), orderId, o.getTotalAmount());
+    }
+
+    @Transactional
+    public void updateStatus(Long userId, Long orderId, OrderStatus newStatus) throws NotFoundException {
+        Order o = orderRepository.findById(orderId)
+                .filter(x -> x.getUser().getId().equals(userId))
+                .orElseThrow(() -> new NotFoundException("Ordine non trovato"));
+        o.setOrderStatus(newStatus);
+        orderRepository.save(o);
+    }
+
+
 }
