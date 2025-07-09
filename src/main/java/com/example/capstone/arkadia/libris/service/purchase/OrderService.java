@@ -1,5 +1,6 @@
 package com.example.capstone.arkadia.libris.service.purchase;
 
+import com.example.capstone.arkadia.libris.dto.request.user.AddToPersonalLibraryRequestDto;
 import com.example.capstone.arkadia.libris.dto.request.user.CheckoutRequestDto;
 import com.example.capstone.arkadia.libris.dto.response.user.AddressDto;
 import com.example.capstone.arkadia.libris.dto.response.purchase.OrderDto;
@@ -16,6 +17,7 @@ import com.example.capstone.arkadia.libris.repository.user.AddressRepository;
 import com.example.capstone.arkadia.libris.repository.purchase.OrderRepository;
 import com.example.capstone.arkadia.libris.service.stock.InventoryService;
 import com.example.capstone.arkadia.libris.service.notification.EmailService;
+import com.example.capstone.arkadia.libris.service.user.PersonalLibraryService;
 import com.example.capstone.arkadia.libris.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ public class OrderService {
     @Autowired private AddressRepository addressRepository;
     @Autowired private OrderRepository orderRepository;
     @Autowired private EmailService emailService;
+    @Autowired private PersonalLibraryService personalLibraryService;
 
     @Transactional
     public OrderDto checkout(long userId, CheckoutRequestDto request) throws NotFoundException {
@@ -61,15 +64,15 @@ public class OrderService {
 
         List<OrderItem> orderItems = cartItems.stream().map(ci -> {
             long pid = ci.getProduct().getId();
-            int qty = ci.getQuantity();
+            int quantity = ci.getQuantity();
             int stock = inventoryService.getStock(pid);
             if (stock == 0) throw new OutOfStockException("Prodotto " + pid + " esaurito");
-            if (stock < qty) throw new OutOfStockException("Quantità insufficiente per prodotto " + pid);
-            inventoryService.decrease(pid, qty);
+            if (stock < quantity) throw new OutOfStockException("Quantità insufficiente per prodotto " + pid);
+            inventoryService.decrease(pid, quantity);
             OrderItem oi = new OrderItem();
             oi.setOrder(order);
             oi.setProduct(ci.getProduct());
-            oi.setQuantity(qty);
+            oi.setQuantity(quantity);
             oi.setUnitPrice(ci.getProduct().getPrice());
             return oi;
         }).collect(Collectors.toList());
@@ -83,8 +86,15 @@ public class OrderService {
         cartService.clearCart(userId);
         emailService.sendOrderConfirmation(u, saved.getId(), total);
 
+        for (OrderItem oi : saved.getItems()) {
+            AddToPersonalLibraryRequestDto dto = new AddToPersonalLibraryRequestDto();
+            dto.setProductId(oi.getProduct().getId());
+            personalLibraryService.addItem(userId, dto);
+        }
+
         return toDto(saved);
     }
+
 
     public Page<OrderDto> listOrders(long userId, Pageable pageable) {
         return orderRepository.findByUserId(userId, pageable).map(this::toDto);

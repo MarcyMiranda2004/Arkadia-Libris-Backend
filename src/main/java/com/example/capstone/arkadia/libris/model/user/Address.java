@@ -8,8 +8,7 @@ import lombok.Data;
 @Entity
 @Table(name = "addresses")
 public class Address {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

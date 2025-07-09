@@ -8,9 +8,11 @@ import com.example.capstone.arkadia.libris.dto.request.user.UpdateUserDto;
 import com.example.capstone.arkadia.libris.enumerated.Role;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.model.purchase.Cart;
+import com.example.capstone.arkadia.libris.model.user.PersonalLIbrary;
 import com.example.capstone.arkadia.libris.model.user.User;
 import com.example.capstone.arkadia.libris.model.user.Wishlist;
 import com.example.capstone.arkadia.libris.repository.purchase.CartRepository;
+import com.example.capstone.arkadia.libris.repository.user.PersonalLibraryRepository;
 import com.example.capstone.arkadia.libris.repository.user.UserRepository;
 import com.example.capstone.arkadia.libris.repository.user.WishlistRepository;
 import com.example.capstone.arkadia.libris.service.notification.EmailService;
@@ -31,6 +33,7 @@ public class UserService {
     @Autowired private UserRepository userRepository;
     @Autowired private CartRepository cartRepository;
     @Autowired private WishlistRepository wishlistRepository;
+    @Autowired private PersonalLibraryRepository personalLibraryRepository;
     @Autowired private Cloudinary cloudinary;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private EmailService emailService;
@@ -58,6 +61,11 @@ public class UserService {
         wishlist.setUser(savedUser);
         wishlistRepository.save(wishlist);
         savedUser.setWishlist(wishlist);
+
+        PersonalLIbrary personalLIbrary = new PersonalLIbrary();
+        personalLIbrary.setUser(savedUser);
+        personalLibraryRepository.save(personalLIbrary);
+        savedUser.setPersonalLibrary(personalLIbrary);
 
         return savedUser;
     }
