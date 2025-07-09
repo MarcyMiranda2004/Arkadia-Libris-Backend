@@ -1,6 +1,7 @@
 # Configurazioni Spring Boot e ambientali
 /application.properties
-/env.properties
+/src/main/resources/env.properties
+/.env
 /*.properties
 
 # Maven POM (se ci metti credenziali o token)
