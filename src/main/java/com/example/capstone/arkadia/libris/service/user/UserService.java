@@ -1,6 +1,8 @@
 package com.example.capstone.arkadia.libris.service.user;
 
 import com.cloudinary.Cloudinary;
+import com.example.capstone.arkadia.libris.dto.request.administration.AssignRoleRequestDto;
+import com.example.capstone.arkadia.libris.dto.request.administration.CreateStaffRequestDto;
 import com.example.capstone.arkadia.libris.dto.response.user.UserDto;
 import com.example.capstone.arkadia.libris.dto.request.user.ChangeEmailDto;
 import com.example.capstone.arkadia.libris.dto.request.user.ChangePasswordDto;
@@ -148,5 +150,49 @@ public class UserService {
         }
         userRepository.delete(u);
         emailService.sendDeleteAccountNotice(u, "Account Eliminato su richiesta dell'utente");
+    }
+
+    public UserDto createUserWithRole(CreateStaffRequestDto createStaffRequestDto) {
+        User u = new User();
+        u.setName(createStaffRequestDto.getName());
+        u.setSurname(createStaffRequestDto.getSurname());
+        u.setBornDate(createStaffRequestDto.getBornDate());
+        u.setUsername(createStaffRequestDto.getUsername());
+        u.setEmail(createStaffRequestDto.getEmail());
+        u.setPassword(passwordEncoder.encode(createStaffRequestDto.getPassword()));
+        u.setAvatarUrl("https://ui-avatars.com/api/?name=" + u.getName().charAt(0) + "+" + u.getSurname().charAt(0));
+        u.setRole(createStaffRequestDto.getRole());
+
+        User saved = userRepository.save(u);
+        emailService.sendRegistrationConfirmation(saved);
+
+        Cart cart = new Cart(); cart.setUser(saved);
+        cartRepository.save(cart); saved.setCart(cart);
+
+        Wishlist wl = new Wishlist(); wl.setUser(saved);
+        wishlistRepository.save(wl); saved.setWishlist(wl);
+
+        PersonalLIbrary lib = new PersonalLIbrary(); lib.setUser(saved);
+        personalLibraryRepository.save(lib); saved.setPersonalLibrary(lib);
+
+        UserDto out = new UserDto();
+        out.setName(saved.getName());
+        out.setSurname(saved.getSurname());
+        out.setBornDate(saved.getBornDate());
+        out.setPhoneNumber(saved.getPhoneNumber());
+        out.setUsername(saved.getUsername());
+        out.setEmail(saved.getEmail());
+        out.setAvatarUrl(saved.getAvatarUrl());
+        out.setPassword("");
+        out.setRole(saved.getRole());
+        return out;
+    }
+
+    @Transactional
+    public void assignRole(Long userId, AssignRoleRequestDto req) throws NotFoundException {
+        User u = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User non trovato: " + userId));
+        u.setRole(req.getRole());
+        userRepository.save(u);
     }
 }

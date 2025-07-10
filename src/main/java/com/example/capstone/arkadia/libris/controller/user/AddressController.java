@@ -22,7 +22,7 @@ public class AddressController {
     @Autowired private AddressService addressService;
 
     @GetMapping
-    @PreAuthorize("#userId == authentication.principal.id ")
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN') or hasRole('STAFF')")
     public ResponseEntity<List<AddressDto>> list(@PathVariable Long userId) throws NotFoundException {
         return ResponseEntity.ok(addressService.listAddresses(userId));
     }

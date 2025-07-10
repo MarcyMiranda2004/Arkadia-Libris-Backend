@@ -23,7 +23,7 @@ public class OrderController {
     @Autowired private OrderService orderService;
 
     @GetMapping
-    @PreAuthorize("#userId == authentication.principal.id")
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN') or hasRole('STAFF')")
     public ResponseEntity<Page<OrderDto>> viewOrders(
             @PathVariable("userId") Long userId,
             @PageableDefault(page = 0, size = 10) Pageable pageable
@@ -32,7 +32,7 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    @PreAuthorize("#userId == authentication.principal.id")
+    @PreAuthorize("#userId == authentication.principal.id or hasRole('ADMIN') or hasRole('STAFF')")
     public ResponseEntity<OrderDto> viewSingleOrder(
             @PathVariable("userId") Long userId,
             @PathVariable("orderId") Long orderId

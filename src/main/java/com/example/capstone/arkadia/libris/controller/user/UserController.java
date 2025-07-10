@@ -40,17 +40,17 @@ public class UserController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")
     public ResponseEntity<List<User>> getAllUsers() {return ResponseEntity.ok(userService.getAllUser());}
 
     @GetMapping("/{id}")
-    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
+    @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN') or hasRole('STAFF')")
     public ResponseEntity<User> getUserById(@PathVariable Long id) throws NotFoundException {
         return ResponseEntity.ok(userService.getUser(id));
     }
 
     @GetMapping("/email/{email}")
-    @PreAuthorize(("#email == authentication.principal.email or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')"))
+    @PreAuthorize(("#email == authentication.principal.email or hasRole('ADMIN') or hasRole('STAFF')"))
     public ResponseEntity<User> getUserByEmail(@PathVariable String email) throws NotFoundException {
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }

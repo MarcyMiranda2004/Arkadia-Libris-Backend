@@ -1,5 +1,6 @@
 package com.example.capstone.arkadia.libris.dto.response.user;
 
+import com.example.capstone.arkadia.libris.enumerated.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -30,9 +31,12 @@ public class UserDto {
     @Size(min = 8, message = "la password deve essere di almeno 8 caratteri")
     @Pattern(
             regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$£%^&+*=_!?~/|.,:;§]).*$",
-            message = "La password deve contenere almeno una lettera maiuscola, una minuscola, un numero e un carattere speciale (@ # $ £ % ^ & + * = _ ! ? ~ / | . , : ; §)"
+            message = "La password deve contenere almeno una lettera maiuscola, una minuscola, " +
+                    "un numero e un carattere speciale (@ # $ £ % ^ & + * = _ ! ? ~ / | . , : ; §)"
     )
     private String password;
 
     private String avatarUrl;
+
+    private Role role;
 }
