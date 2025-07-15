@@ -128,6 +128,14 @@ public class UserService {
     }
 
     @Transactional
+    public void updateUserPhone(Long id, String phoneNumber) throws NotFoundException {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Utente non trovato"));
+        user.setPhoneNumber(phoneNumber);
+        userRepository.save(user);
+    }
+
+    @Transactional
     public void deleteUser(Long id, String rawPassword) throws NotFoundException {
         User u = getUser(id);
         if (!passwordEncoder.matches(rawPassword, u.getPassword()))

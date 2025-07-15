@@ -1,11 +1,8 @@
 // src/main/java/com/example/capstone/arkadia/libris/controller/user/UserController.java
 package com.example.capstone.arkadia.libris.controller.user;
 
-import com.example.capstone.arkadia.libris.dto.request.user.DeleteUserDto;
+import com.example.capstone.arkadia.libris.dto.request.user.*;
 import com.example.capstone.arkadia.libris.dto.response.user.UserDto;
-import com.example.capstone.arkadia.libris.dto.request.user.ChangeEmailDto;
-import com.example.capstone.arkadia.libris.dto.request.user.ChangePasswordDto;
-import com.example.capstone.arkadia.libris.dto.request.user.UpdateUserDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.exception.ValidationException;
 import com.example.capstone.arkadia.libris.model.user.User;
@@ -111,6 +108,25 @@ public class UserController {
                 br.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining("; "))
         );
         userService.updateUserEmail(id, dto);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/phone")
+    @PreAuthorize("#id == authentication.principal.id")
+    public ResponseEntity<Void> changePhone(
+            @PathVariable Long id,
+            @Valid @RequestBody ChangePhoneNumberDto changePhoneNumberDto,
+            BindingResult br
+    ) throws NotFoundException {
+        if (br.hasErrors()) {
+            throw new ValidationException(
+                    br.getAllErrors()
+                            .stream()
+                            .map(e -> e.getDefaultMessage())
+                            .collect(Collectors.joining("; "))
+            );
+        }
+        userService.updateUserPhone(id, changePhoneNumberDto.getPhoneNumber());
         return ResponseEntity.noContent().build();
     }
 
