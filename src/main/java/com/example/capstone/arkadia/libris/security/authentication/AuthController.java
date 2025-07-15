@@ -8,15 +8,17 @@ import com.example.capstone.arkadia.libris.exception.ValidationException;
 import com.example.capstone.arkadia.libris.model.user.User;
 import com.example.capstone.arkadia.libris.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AuthController {
 
     @Autowired
@@ -35,14 +37,23 @@ public class AuthController {
         return userService.saveUser(userDto);
     }
 
-    @PostMapping("/login")
-    public String login(@RequestBody @Validated LoginDto loginDto, BindingResult bindingResult) throws ValidationException, NotFoundException {
+    @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<LoginResponse> login(@RequestBody @Validated LoginDto loginDto, BindingResult bindingResult
+    ) throws ValidationException, NotFoundException {
         if (bindingResult.hasErrors()) {
-            throw new ValidationException(bindingResult.getAllErrors().stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .reduce("", (s, e) -> s + e));
+            throw new ValidationException(
+                    bindingResult.getAllErrors().stream()
+                            .map(objectError -> objectError.getDefaultMessage())
+                            .reduce("", (s, e) -> s + e)
+            );
         }
-        return authService.login(loginDto);
+
+        String token = authService.login(loginDto);
+        User user = userService.getUserByEmail(loginDto.getEmail());
+        Long userId = user.getId();
+        LoginResponse response = new LoginResponse(token, userId);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response);
     }
+
 }
 
