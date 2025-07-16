@@ -42,6 +42,7 @@ public class CustomizedExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiError genericExceptionHandler(Exception e) {
+        e.printStackTrace();
         return new ApiError("Internal server error", LocalDateTime.now());
     }
 }

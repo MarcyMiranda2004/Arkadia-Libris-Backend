@@ -86,13 +86,15 @@ public class OrderService {
         cartService.clearCart(userId);
         emailService.sendOrderConfirmation(u, saved.getId(), total);
 
-        for (OrderItem oi : saved.getItems()) {
+        return toDto(saved);
+    }
+
+    public void postCheckoutAddToLibrary(long userId, OrderDto orderDto) {
+        for (OrderItemDto item : orderDto.getItems()) {
             AddToPersonalLibraryRequestDto dto = new AddToPersonalLibraryRequestDto();
-            dto.setProductId(oi.getProduct().getId());
+            dto.setProductId(item.getProductId());
             personalLibraryService.addItem(userId, dto);
         }
-
-        return toDto(saved);
     }
 
 

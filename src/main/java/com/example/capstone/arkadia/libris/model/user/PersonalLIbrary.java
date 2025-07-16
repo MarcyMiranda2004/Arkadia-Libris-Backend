@@ -1,5 +1,6 @@
 package com.example.capstone.arkadia.libris.model.user;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -18,5 +19,6 @@ public class PersonalLIbrary {
     private User user;
 
     @OneToMany(mappedBy = "personalLibrary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
     private List<PersonalLibraryItem> items = new ArrayList<>();
 }

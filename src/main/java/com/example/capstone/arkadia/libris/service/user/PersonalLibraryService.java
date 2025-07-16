@@ -7,12 +7,14 @@ import com.example.capstone.arkadia.libris.enumerated.ReadingStatus;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.model.user.PersonalLIbrary;
 import com.example.capstone.arkadia.libris.model.user.PersonalLibraryItem;
+import com.example.capstone.arkadia.libris.model.user.User;
 import com.example.capstone.arkadia.libris.model.stock.Product;
 import com.example.capstone.arkadia.libris.repository.user.PersonalLibraryItemRepository;
 import com.example.capstone.arkadia.libris.repository.user.PersonalLibraryRepository;
 import com.example.capstone.arkadia.libris.service.stock.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.stream.Collectors;
@@ -29,38 +31,36 @@ public class PersonalLibraryService {
         PersonalLIbrary lib = libraryRepo.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Libreria personale non trovata per utente " + userId));
 
-        PersonalLibraryDto personalLibraryDto = new PersonalLibraryDto();
-        personalLibraryDto.setPersonalLibraryId(lib.getId());
-        personalLibraryDto.setItems(
-                lib.getItems().stream().map(this::toDto).collect(Collectors.toList())
-        );
-        return personalLibraryDto;
+        PersonalLibraryDto dto = new PersonalLibraryDto();
+        dto.setPersonalLibraryId(lib.getId());
+        dto.setItems(lib.getItems().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList()));
+        return dto;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PersonalLIbraryItemDto addItem(Long userId, AddToPersonalLibraryRequestDto request) throws NotFoundException {
-        userService.getUser(userId);
-        Product p = productService.getProductById(request.getProductId());
+        User user = userService.getUser(userId);
+        Product product = productService.getProductById(request.getProductId());
 
-        PersonalLIbrary lib = libraryRepo.findByUserId(userId)
+        PersonalLIbrary library = libraryRepo.findByUserId(userId)
                 .orElseGet(() -> {
-                    PersonalLIbrary x = new PersonalLIbrary();
-                    x.setUser(userService.getUser(userId));
-                    return libraryRepo.save(x);
+                    PersonalLIbrary lib = new PersonalLIbrary();
+                    lib.setUser(user);
+                    return libraryRepo.save(lib);
                 });
 
         PersonalLibraryItem item = itemRepo
-                .findByPersonalLibraryIdAndProductId(lib.getId(), p.getId())
+                .findByPersonalLibraryIdAndProductId(library.getId(), product.getId())
                 .orElseGet(() -> {
-                    PersonalLibraryItem i = new PersonalLibraryItem();
-                    i.setPersonalLibrary(lib);
-                    i.setProduct(p);
-                    i.setStatus(ReadingStatus.DA_LEGGERE);
-                    lib.getItems().add(i);
-                    return i;
+                    PersonalLibraryItem newItem = new PersonalLibraryItem();
+                    newItem.setPersonalLibrary(library);
+                    newItem.setProduct(product);
+                    newItem.setStatus(ReadingStatus.DA_LEGGERE);
+                    return itemRepo.save(newItem);
                 });
 
-        libraryRepo.save(lib);
         return toDto(item);
     }
 

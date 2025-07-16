@@ -47,8 +47,10 @@ public class OrderController {
             @RequestBody @Valid CheckoutRequestDto request
     ) throws NotFoundException {
         OrderDto dto = orderService.checkout(userId, request);
+        orderService.postCheckoutAddToLibrary(userId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
+
 
     @PatchMapping("{orderId}/status")
     @PreAuthorize("hasRole('ADMIN') or hasRole('STAFF')")

@@ -66,7 +66,7 @@ public class ProductService {
         p.getImages().clear();
         p.getImages().addAll(request.getImages());
         if (p.getImages().isEmpty()) {
-            p.getImages().add("/images/book-cover-placeholder.png");
+            p.getImages().add("https://i.pinimg.com/736x/5d/9e/c5/5d9ec5890c8e5cf8185e4bc96e9fc015.jpg");
         }
 
         Product saved = productRepository.save(p);
