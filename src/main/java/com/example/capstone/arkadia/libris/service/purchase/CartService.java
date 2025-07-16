@@ -36,11 +36,11 @@ public class CartService {
 
         double total = items.stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum();
 
-        CartDto dto = new CartDto();
-        dto.setCartId(cart.getId());
-        dto.setItems(items);
-        dto.setTotalPrice(total);
-        return dto;
+        CartDto cartDto = new CartDto();
+        cartDto.setCartId(cart.getId());
+        cartDto.setItems(items);
+        cartDto.setTotalPrice(total);
+        return cartDto;
     }
 
     public List<CartItem> getCartItems(Long userId) throws NotFoundException {

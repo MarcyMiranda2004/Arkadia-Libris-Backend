@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WishlistService {
@@ -90,6 +91,8 @@ public class WishlistService {
         WishlistItemDto wi = new WishlistItemDto();
         wi.setProductId(i.getProduct().getId());
         wi.setProductName(i.getProduct().getTitle());
+        wi.setPrice(i.getProduct().getPrice());
+        wi.setImageUrls(i.getProduct().getImages());
         return wi;
     }
 }
