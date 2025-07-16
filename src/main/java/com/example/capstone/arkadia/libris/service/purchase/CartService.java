@@ -32,10 +32,15 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Carrello non trovato per utente " + userId));
 
-        CartDto cartDto = new CartDto();
-        cartDto.setCartId(cart.getId());
-        cartDto.setItems(cart.getItems().stream().map(this::toDto).collect(Collectors.toList()));
-        return cartDto;
+        var items = cart.getItems().stream().map(this::toDto).collect(Collectors.toList());
+
+        double total = items.stream().mapToDouble(i -> i.getPrice() * i.getQuantity()).sum();
+
+        CartDto dto = new CartDto();
+        dto.setCartId(cart.getId());
+        dto.setItems(items);
+        dto.setTotalPrice(total);
+        return dto;
     }
 
     public List<CartItem> getCartItems(Long userId) throws NotFoundException {
@@ -54,11 +59,12 @@ public class CartService {
                 .orElseGet(() -> {
                     Cart c = new Cart();
                     c.setUser(u);
-                    return c;
+                    return cartRepository.save(c);
                 });
 
         Optional<CartItem> existing = cart.getItems().stream()
-                .filter(i -> i.getProduct().getId().equals(productId)).findAny();
+                .filter(i -> i.getProduct().getId().equals(productId))
+                .findAny();
 
         CartItem item = existing.orElseGet(() -> {
             CartItem ci = new CartItem();
@@ -70,7 +76,7 @@ public class CartService {
         });
 
         int available = inventoryService.getStock(productId);
-        if (available < quantity + item.getQuantity()) {
+        if (available < item.getQuantity() + quantity) {
             throw new OutOfStockException(
                     "Il prodotto \"" + p.getTitle() + "\" ha solo " + available + " pezzi disponibili");
         }
@@ -81,9 +87,9 @@ public class CartService {
     }
 
     @Transactional
-    public CartDto updateItemQuantity(Long UserId, Long productId, int quantity) throws NotFoundException {
-        Cart cart = cartRepository.findByUserId(UserId)
-                .orElseThrow(() -> new NotFoundException("Carrello non trovato per utente " + UserId));
+    public CartDto updateItemQuantity(Long userId, Long productId, int quantity) throws NotFoundException {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException("Carrello non trovato per utente " + userId));
 
         CartItem item = cart.getItems().stream()
                 .filter(i -> i.getProduct().getId().equals(productId))
@@ -102,13 +108,14 @@ public class CartService {
 
         item.setQuantity(quantity);
         cartRepository.save(cart);
-        return viewCart(UserId);
+        return viewCart(userId);
     }
 
     @Transactional
     public CartDto removeItemFromCart(Long userId, Long productId) throws NotFoundException {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Carrello non trovato per utente " + userId));
+
         cart.getItems().removeIf(i -> i.getProduct().getId().equals(productId));
         cartRepository.save(cart);
         return viewCart(userId);
@@ -126,6 +133,7 @@ public class CartService {
         CartItemDto d = new CartItemDto();
         d.setProductId(i.getProduct().getId());
         d.setProductName(i.getProduct().getTitle());
+        d.setImageUrls(i.getProduct().getImages());
         d.setQuantity(i.getQuantity());
         d.setPrice(i.getProduct().getPrice());
         return d;
