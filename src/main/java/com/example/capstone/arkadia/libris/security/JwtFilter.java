@@ -1,8 +1,8 @@
 package com.example.capstone.arkadia.libris.security;
 
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
-import com.example.capstone.arkadia.libris.exception.UnAuthorizedException;
 import com.example.capstone.arkadia.libris.model.user.User;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,31 +24,32 @@ public class JwtFilter extends OncePerRequestFilter {
     private JwtTool jwtTool;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
+        String header = request.getHeader("Authorization");
 
-        String authorization = request.getHeader("Authorization");
-
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            throw new UnAuthorizedException("Token non presente");
-        }
-
-        String token = authorization.substring(7);
-        jwtTool.validateToken(token);
-
-        try {
-            User user = jwtTool.getUserFromToken(token);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (NotFoundException e) {
-            throw new UnAuthorizedException("Utente collegato al token non trovato");
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7).trim();
+            if (!token.isEmpty()) {
+                try {
+                    jwtTool.validateToken(token);
+                    User user = jwtTool.getUserFromToken(token);
+                    Authentication auth =
+                            new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                } catch (JwtException | NotFoundException ex) {
+                }
+            }
         }
 
         filterChain.doFilter(request, response);
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return new AntPathMatcher().match("/auth/**", request.getServletPath());
     }
 }

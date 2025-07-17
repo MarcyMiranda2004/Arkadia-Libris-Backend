@@ -1,4 +1,3 @@
-// src/main/java/com/example/capstone/arkadia/libris/controller/stock/ProductController.java
 package com.example.capstone.arkadia.libris.controller.stock;
 
 import com.example.capstone.arkadia.libris.dto.request.stock.CreateProductRequestDto;
