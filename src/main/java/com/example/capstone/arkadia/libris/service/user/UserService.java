@@ -21,6 +21,8 @@ import com.example.capstone.arkadia.libris.repository.user.WishlistRepository;
 import com.example.capstone.arkadia.libris.service.notification.EmailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,6 +64,20 @@ public class UserService {
         return saved;
     }
 
+    private UserDto toDto(User u) {
+        UserDto userDto = new UserDto();
+        userDto.setId(u.getId());
+        userDto.setName(u.getName());
+        userDto.setSurname(u.getSurname());
+        userDto.setBornDate(u.getBornDate());
+        userDto.setUsername(u.getUsername());
+        userDto.setEmail(u.getEmail());
+        userDto.setPhoneNumber(u.getPhoneNumber());
+        userDto.setAvatarUrl(u.getAvatarUrl());
+        userDto.setRole(u.getRole());
+        return userDto;
+    }
+
     public List<User> getAllUser() {
         return userRepository.findAll();
     }
@@ -79,6 +95,12 @@ public class UserService {
     public User getUserByUsername(String username) throws NotFoundException {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User con username " + username + " non trovato"));
+    }
+
+    public Page<UserDto> searchUserDtos(String query, Pageable pageable) {
+        Page<User> page = userRepository
+                .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query, pageable);
+        return page.map(this::toDto);
     }
 
     public User updateUser(Long id, UpdateUserDto dto) throws NotFoundException {
@@ -142,19 +164,6 @@ public class UserService {
             throw new BadCredentialsException("Password non corretta");
         userRepository.delete(u);
         emailService.sendDeleteAccountNotice(u, "Account eliminato");
-    }
-
-    private UserDto toDto(User u) {
-        UserDto dto = new UserDto();
-        dto.setName(u.getName());
-        dto.setSurname(u.getSurname());
-        dto.setBornDate(u.getBornDate());
-        dto.setUsername(u.getUsername());
-        dto.setEmail(u.getEmail());
-        dto.setPhoneNumber(u.getPhoneNumber());
-        dto.setAvatarUrl(u.getAvatarUrl());
-        dto.setRole(u.getRole());
-        return dto;
     }
 
     public UserDto saveUserDto(UserDto dto) {

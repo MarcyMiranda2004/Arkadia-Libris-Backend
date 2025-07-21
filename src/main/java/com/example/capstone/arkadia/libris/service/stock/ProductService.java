@@ -8,6 +8,7 @@ import com.example.capstone.arkadia.libris.exception.ValidationException;
 import com.example.capstone.arkadia.libris.model.stock.Category;
 import com.example.capstone.arkadia.libris.model.stock.Product;
 import com.example.capstone.arkadia.libris.repository.stock.CategoryRepository;
+import com.example.capstone.arkadia.libris.repository.stock.InventoryRepository;
 import com.example.capstone.arkadia.libris.repository.stock.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ public class ProductService {
 
     @Autowired private ProductRepository productRepository;
     @Autowired private CategoryRepository categoryRepository;
+    @Autowired private InventoryRepository inventoryRepository;
     @Autowired private InventoryService inventoryService;
 
     public Page<ProductDto> search(String title, String isbn, String author, Pageable pageable) {
@@ -106,6 +108,9 @@ public class ProductService {
 
     @Transactional
     public void delete(Long id) throws NotFoundException {
+        inventoryRepository.findByProductId(id)
+                .ifPresent(inventoryRepository::delete);
+
         Product p = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Prodotto non trovato"));
         productRepository.delete(p);
