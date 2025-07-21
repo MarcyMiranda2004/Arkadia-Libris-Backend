@@ -15,6 +15,7 @@ import com.example.capstone.arkadia.libris.model.user.PersonalLIbrary;
 import com.example.capstone.arkadia.libris.model.user.User;
 import com.example.capstone.arkadia.libris.model.user.Wishlist;
 import com.example.capstone.arkadia.libris.repository.purchase.CartRepository;
+import com.example.capstone.arkadia.libris.repository.purchase.OrderRepository;
 import com.example.capstone.arkadia.libris.repository.user.PersonalLibraryRepository;
 import com.example.capstone.arkadia.libris.repository.user.UserRepository;
 import com.example.capstone.arkadia.libris.repository.user.WishlistRepository;
@@ -42,6 +43,7 @@ public class UserService {
     @Autowired private Cloudinary cloudinary;
     @Autowired private PasswordEncoder passwordEncoder;
     @Autowired private EmailService emailService;
+    @Autowired private OrderRepository orderRepository;
 
     public User saveUser(UserDto dto) {
         User u = new User();
@@ -162,7 +164,8 @@ public class UserService {
         User u = getUser(id);
         if (!passwordEncoder.matches(rawPassword, u.getPassword()))
             throw new BadCredentialsException("Password non corretta");
-        userRepository.delete(u);
+        orderRepository.deleteByUserId(id);
+        userRepository.deleteById(id);
         emailService.sendDeleteAccountNotice(u, "Account eliminato");
     }
 
