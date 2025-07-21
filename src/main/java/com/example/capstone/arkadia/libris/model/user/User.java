@@ -99,4 +99,11 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @PreRemove
+    private void preRemove() {
+        if (Wishlist != null) Wishlist.getItems().clear();
+        if (cart != null) cart.getItems().clear();
+        if (personalLibrary != null) personalLibrary.getItems().clear();
+    }
 }

@@ -4,8 +4,10 @@ import com.example.capstone.arkadia.libris.dto.response.user.AddressDto;
 import com.example.capstone.arkadia.libris.exception.NotFoundException;
 import com.example.capstone.arkadia.libris.model.user.Address;
 import com.example.capstone.arkadia.libris.model.user.User;
+import com.example.capstone.arkadia.libris.repository.purchase.OrderRepository;
 import com.example.capstone.arkadia.libris.repository.user.AddressRepository;
 import com.example.capstone.arkadia.libris.service.notification.EmailService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +17,13 @@ import java.util.List;
 @Service
 public class AddressService {
 
-    @Autowired
-    private AddressRepository addressRepository;
+    @Autowired private AddressRepository addressRepository;
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private EmailService emailService;
+    @Autowired private EmailService emailService;
+
+    @Autowired private OrderRepository orderRepository;
 
     public AddressDto saveAddress(Long userId, AddressDto addressDto) throws NotFoundException {
         User u = userService.getUser(userId);
@@ -62,12 +63,17 @@ public class AddressService {
         return addressDto;
     }
 
-    public void deleteAddress(Long userId, Long addressId) throws NotFoundException, AccessDeniedException {
+    @Transactional
+    public void deleteAddress(Long userId, Long addressId)
+            throws NotFoundException, AccessDeniedException {
         Address a = addressRepository.findById(addressId)
                 .orElseThrow(() -> new NotFoundException("Indirizzo non trovato"));
-        if (!a.getUser().getId().equals(userId)) {
+        if (!a.getUser().getId().equals(userId))
             throw new AccessDeniedException("Non puoi eliminare questo indirizzo");
-        }
+
+        orderRepository.nullifyShippingAddress(addressId);
+        orderRepository.nullifyBillingAddress(addressId);
+
         addressRepository.delete(a);
     }
 

@@ -5,6 +5,8 @@ import com.example.capstone.arkadia.libris.model.user.Address;
 import com.example.capstone.arkadia.libris.model.user.User;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,15 +26,17 @@ public class Order {
     private LocalDate orderDate;
     private double totalAmount;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "shipping_address_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "shipping_address_id", nullable = true, foreignKey = @ForeignKey(name = "fk_order_shipping_address")
+    )
     private Address shippingAddress;
 
-    @ManyToOne
-    @JoinColumn(name = "billing_address_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "billing_address_id", nullable = true, foreignKey = @ForeignKey(name = "fk_order_billing_address"))
     private Address billingAddress;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private List<OrderItem> items = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
