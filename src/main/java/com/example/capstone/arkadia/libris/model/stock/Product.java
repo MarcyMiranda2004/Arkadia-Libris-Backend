@@ -1,4 +1,3 @@
-// src/main/java/com/example/capstone/arkadia/libris/model/stock/Product.java
 package com.example.capstone.arkadia.libris.model.stock;
 
 import com.example.capstone.arkadia.libris.enumerated.ProductType;
