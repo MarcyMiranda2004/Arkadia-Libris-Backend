@@ -29,11 +29,10 @@ public class WishlistService {
     public WishlistDto viewWishlist(Long userId) throws NotFoundException {
         Wishlist wishlist = wishlistRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException("Wishlist non trovata per utente " + userId));
-
         WishlistDto wishlistDto = new WishlistDto();
         wishlistDto.setWishlistId(wishlist.getId());
         wishlistDto.setItems(wishlist.getItems().stream().map(this::toDto).toList());
-        return  wishlistDto;
+        return wishlistDto;
     }
 
     public List<WishlistItem> getWishlistItems(Long userId) throws NotFoundException {

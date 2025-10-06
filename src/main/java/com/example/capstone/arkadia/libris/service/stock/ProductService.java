@@ -108,11 +108,9 @@ public class ProductService {
 
     @Transactional
     public void delete(Long id) throws NotFoundException {
-        inventoryRepository.findByProductId(id)
-                .ifPresent(inventoryRepository::delete);
+        inventoryRepository.findByProductId(id).ifPresent(inventoryRepository::delete);
 
-        Product p = productRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Prodotto non trovato"));
+        Product p = productRepository.findById(id).orElseThrow(() -> new NotFoundException("Prodotto non trovato"));
         productRepository.delete(p);
     }
 

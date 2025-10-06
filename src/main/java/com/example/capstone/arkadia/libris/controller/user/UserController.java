@@ -74,7 +74,7 @@ public class UserController {
     @PreAuthorize("#id == authentication.principal.id")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable Long id,
-            @RequestBody @Valid UpdateUserDto dto,
+            @RequestBody @Valid UpdateUserDto updateUserDto,
             BindingResult br
     ) throws NotFoundException {
         if (br.hasErrors()) {
@@ -84,7 +84,7 @@ public class UserController {
                             .collect(Collectors.joining("; "))
             );
         }
-        User updatedUser = userService.updateUser(id, dto);
+        User updatedUser = userService.updateUser(id, updateUserDto);
         UserDto updatedDto = userService.getUserDto(id);
         return ResponseEntity.ok(updatedDto);
     }
@@ -100,13 +100,13 @@ public class UserController {
     @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
     public ResponseEntity<Void> changePassword(
             @PathVariable Long id,
-            @Valid @RequestBody ChangePasswordDto dto,
+            @Valid @RequestBody ChangePasswordDto changePasswordDto,
             BindingResult br
     ) throws NotFoundException {
         if (br.hasErrors()) throw new ValidationException(
                 br.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining("; "))
         );
-        userService.updateUserPassword(id, dto);
+        userService.updateUserPassword(id, changePasswordDto);
         return ResponseEntity.noContent().build();
     }
 
@@ -114,13 +114,13 @@ public class UserController {
     @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN') or hasRole('CUSTOMER_SERVICE')")
     public ResponseEntity<Void> changeEmail(
             @PathVariable Long id,
-            @Valid @RequestBody ChangeEmailDto dto,
+            @Valid @RequestBody ChangeEmailDto changeEmailDto,
             BindingResult br
     ) throws NotFoundException {
         if (br.hasErrors()) throw new ValidationException(
                 br.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining("; "))
         );
-        userService.updateUserEmail(id, dto);
+        userService.updateUserEmail(id, changeEmailDto);
         return ResponseEntity.noContent().build();
     }
 
@@ -147,13 +147,13 @@ public class UserController {
     @PreAuthorize("#id == authentication.principal.id")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id,
-            @RequestBody @Valid DeleteUserDto dto,
+            @RequestBody @Valid DeleteUserDto deleteUserDto,
             BindingResult br
     ) throws NotFoundException {
         if (br.hasErrors()) throw new ValidationException(
                 br.getAllErrors().stream().map(e -> e.getDefaultMessage()).collect(Collectors.joining("; "))
         );
-        userService.deleteUser(id, dto.getPassword());
+        userService.deleteUser(id, deleteUserDto.getPassword());
         return ResponseEntity.noContent().build();
     }
 }

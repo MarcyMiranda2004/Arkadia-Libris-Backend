@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users/{userId}/wishlist")
 public class WishlistController {
-
-    @Autowired
-    private WishlistService wishlistService;
+    @Autowired private WishlistService wishlistService;
 
     @GetMapping
     @PreAuthorize("#userId == authentication.principal.id")
