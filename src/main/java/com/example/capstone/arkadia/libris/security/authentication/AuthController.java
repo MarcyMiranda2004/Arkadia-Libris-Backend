@@ -21,11 +21,8 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class AuthController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private AuthService authService;
+    @Autowired private UserService userService;
+    @Autowired private AuthService authService;
 
     @PostMapping("/register")
     public User register(@RequestBody @Validated UserDto userDto, BindingResult bindingResult) {

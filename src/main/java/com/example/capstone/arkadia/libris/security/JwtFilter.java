@@ -20,8 +20,7 @@ import java.io.IOException;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtTool jwtTool;
+    @Autowired private JwtTool jwtTool;
 
     @Override
     protected void doFilterInternal(
